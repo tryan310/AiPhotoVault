@@ -330,7 +330,7 @@ app.post('/api/generate-photos', authenticateToken, getUserFromToken, async (req
       for (let i = 0; i < photoCount; i++) {
         generationPromises.push(
           ai.models.generateContent({
-            model: 'gemini-2.5-flash-image-preview',
+            model: 'gemini-1.5-flash',
             contents: {
               parts: [
                 {
@@ -345,7 +345,7 @@ app.post('/api/generate-photos', authenticateToken, getUserFromToken, async (req
               ],
             },
             config: {
-              responseModalities: [Modality.IMAGE, Modality.TEXT],
+              responseModalities: [Modality.IMAGE],
             },
           })
         );
@@ -383,9 +383,18 @@ app.post('/api/generate-photos', authenticateToken, getUserFromToken, async (req
       });
     } catch (geminiError) {
       console.error('Gemini API error:', geminiError);
+      console.error('Error details:', {
+        message: geminiError.message,
+        stack: geminiError.stack,
+        name: geminiError.name
+      });
       // Refund credits if Gemini fails
       await addCredits(req.user.id, creditsPerGeneration, 'Refund for failed generation');
-      throw new Error('AI generation service temporarily unavailable');
+      res.status(500).json({ 
+        error: 'AI generation service temporarily unavailable',
+        details: geminiError.message 
+      });
+      return;
     }
   } catch (error) {
     console.error('Error generating photos:', error);
