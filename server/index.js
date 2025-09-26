@@ -39,7 +39,7 @@ console.log('🔑 API Key length:', process.env.GEMINI_API_KEY ? process.env.GEM
 await initDatabase();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 8080;
 
 // Initialize Stripe with your secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -855,6 +855,8 @@ console.log('  FRONTEND_URL:', process.env.FRONTEND_URL);
 console.log('  GCS_BUCKET_NAME:', process.env.GCS_BUCKET_NAME);
 console.log('  GOOGLE_CLOUD_PROJECT_ID:', process.env.GOOGLE_CLOUD_PROJECT_ID);
 console.log('🔧 Using PORT:', PORT);
+console.log('🔧 Railway PORT env var:', process.env.PORT);
+console.log('🔧 Railway PORT type:', typeof process.env.PORT);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
