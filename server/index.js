@@ -79,6 +79,20 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Simple test endpoint
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    status: 'Test Endpoint Working',
+    timestamp: new Date().toISOString(),
+    environment: {
+      NODE_ENV: process.env.NODE_ENV,
+      PORT: process.env.PORT,
+      GCS_BUCKET_NAME: process.env.GCS_BUCKET_NAME,
+      GOOGLE_CLOUD_PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT_ID
+    }
+  });
+});
+
 // GCS Debug endpoint (for production debugging)
 app.get('/api/debug/gcs', async (req, res) => {
   try {
