@@ -82,6 +82,15 @@ app.get('/health', (req, res) => {
 });
 
 // Simple test endpoint
+app.get('/test', (req, res) => {
+  res.json({ 
+    status: 'Simple Test Working',
+    timestamp: new Date().toISOString(),
+    message: 'This is a simple test endpoint'
+  });
+});
+
+// Simple test endpoint
 app.get('/api/test', (req, res) => {
   res.json({ 
     status: 'Test Endpoint Working',
