@@ -79,6 +79,55 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// GCS Debug endpoint (for production debugging)
+app.get('/api/debug/gcs', async (req, res) => {
+  try {
+    const { initializeGCS } = await import('./database-gcs.js');
+    initializeGCS();
+    
+    // Import the GCS functions to test
+    const { getUserPhotos } = await import('./database-gcs.js');
+    
+    // Test with a small limit to avoid overwhelming the response
+    const testPhotos = await getUserPhotos(1, 1);
+    
+    res.json({
+      status: 'GCS Debug',
+      timestamp: new Date().toISOString(),
+      environment: {
+        GCS_BUCKET_NAME: process.env.GCS_BUCKET_NAME,
+        GOOGLE_CLOUD_BUCKET_NAME: process.env.GOOGLE_CLOUD_BUCKET_NAME,
+        GOOGLE_CLOUD_PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT_ID,
+        GOOGLE_CLOUD_KEY_FILE: process.env.GOOGLE_CLOUD_KEY_FILE,
+        GOOGLE_APPLICATION_CREDENTIALS: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+        GCS_KEY_B64: process.env.GCS_KEY_B64 ? 'Set (base64 encoded)' : 'Not set'
+      },
+      testPhotos: testPhotos.length,
+      samplePhoto: testPhotos.length > 0 ? {
+        id: testPhotos[0].id,
+        theme: testPhotos[0].theme,
+        imageCount: testPhotos[0].generated_images?.length,
+        firstImageUrl: testPhotos[0].generated_images?.[0]?.substring(0, 100) + '...',
+        hasSignedUrl: testPhotos[0].generated_images?.[0]?.includes('X-Goog-')
+      } : null
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'GCS Debug Error',
+      error: error.message,
+      stack: error.stack,
+      environment: {
+        GCS_BUCKET_NAME: process.env.GCS_BUCKET_NAME,
+        GOOGLE_CLOUD_BUCKET_NAME: process.env.GOOGLE_CLOUD_BUCKET_NAME,
+        GOOGLE_CLOUD_PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT_ID,
+        GOOGLE_CLOUD_KEY_FILE: process.env.GOOGLE_CLOUD_KEY_FILE,
+        GOOGLE_APPLICATION_CREDENTIALS: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+        GCS_KEY_B64: process.env.GCS_KEY_B64 ? 'Set (base64 encoded)' : 'Not set'
+      }
+    });
+  }
+});
+
 // ==================== AUTHENTICATION ENDPOINTS ====================
 
 // Register endpoint
