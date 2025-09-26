@@ -4,7 +4,7 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "bash -lc \"echo \\\"$GCS_KEY_B64\\\" | base64 -d > /app/gcs-key.json && sleep 2 && node server/index.js\"",
+    "startCommand": "echo \"$GCS_KEY_B64\" | base64 -d > /app/gcs-key.json && sleep 2 && node server/index.js",
     "healthcheckPath": "/health",
     "healthcheckTimeout": 100,
     "restartPolicyType": "ON_FAILURE",
