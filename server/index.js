@@ -52,7 +52,9 @@ app.use(cors({
   origin: (origin, callback) => {
     const allowedFromEnv = process.env.FRONTEND_URL;
     const isLocalhost = !origin || /^http:\/\/localhost:\d+$/.test(origin);
-    if (isLocalhost || (allowedFromEnv && origin === allowedFromEnv)) {
+    const isPhotoVault = origin === 'https://photoaivault.com' || origin === 'https://www.photoaivault.com';
+    
+    if (isLocalhost || (allowedFromEnv && origin === allowedFromEnv) || isPhotoVault) {
       return callback(null, true);
     }
     return callback(null, false);
