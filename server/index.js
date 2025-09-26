@@ -335,7 +335,7 @@ app.post('/api/generate-photos', authenticateToken, getUserFromToken, async (req
               parts: [
                 {
                   inlineData: {
-                    data: imageData,
+                    data: imageData.replace(/^data:image\/[a-z]+;base64,/, ''),
                     mimeType: 'image/jpeg',
                   },
                 },
