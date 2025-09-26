@@ -16,17 +16,29 @@ const GOOGLE_CLOUD_KEY_FILE = process.env.GOOGLE_APPLICATION_CREDENTIALS || '/ap
 
 let storage;
 let bucket;
+let gcsInitialized = false;
 
-if (GCS_BUCKET_NAME && GOOGLE_CLOUD_PROJECT_ID && GOOGLE_CLOUD_KEY_FILE) {
-  storage = new Storage({
-    projectId: GOOGLE_CLOUD_PROJECT_ID,
-    keyFilename: GOOGLE_CLOUD_KEY_FILE,
-  });
-  bucket = storage.bucket(GCS_BUCKET_NAME);
-  console.log(`✅ Google Cloud Storage initialized for bucket: ${GCS_BUCKET_NAME}`);
-} else {
-  console.warn('⚠️ Google Cloud Storage environment variables not fully configured. GCS functions will not be available.');
-}
+// Lazy initialization of GCS
+const initializeGCS = () => {
+  if (gcsInitialized) return;
+  
+  if (GCS_BUCKET_NAME && GOOGLE_CLOUD_PROJECT_ID && GOOGLE_CLOUD_KEY_FILE) {
+    try {
+      storage = new Storage({
+        projectId: GOOGLE_CLOUD_PROJECT_ID,
+        keyFilename: GOOGLE_CLOUD_KEY_FILE,
+      });
+      bucket = storage.bucket(GCS_BUCKET_NAME);
+      gcsInitialized = true;
+      console.log(`✅ Google Cloud Storage initialized for bucket: ${GCS_BUCKET_NAME}`);
+    } catch (error) {
+      console.error('❌ Failed to initialize Google Cloud Storage:', error.message);
+      console.warn('⚠️ GCS functions will not be available.');
+    }
+  } else {
+    console.warn('⚠️ Google Cloud Storage environment variables not fully configured. GCS functions will not be available.');
+  }
+};
 
 // Re-export all functions from database.js for user/credit management
 export * from './database.js';
@@ -34,6 +46,12 @@ export * from './database.js';
 // Helper function to generate signed URLs
 const generateSignedUrl = async (fileName, expirationMinutes = 60) => {
   try {
+    initializeGCS();
+    if (!bucket) {
+      console.error('❌ GCS bucket not available for signed URL generation');
+      return null;
+    }
+    
     console.log(`🔗 Generating signed URL for: ${fileName}`);
     const file = bucket.file(fileName);
     const [signedUrl] = await file.getSignedUrl({
@@ -51,6 +69,7 @@ const generateSignedUrl = async (fileName, expirationMinutes = 60) => {
 
 // Override savePhotos, getUserPhotos, getPhotoById, deletePhoto for GCS
 export const savePhotos = async (userId, originalImageUrl, generatedImages, theme, creditsUsed) => {
+  initializeGCS();
   if (!bucket) {
     throw new Error('Google Cloud Storage not configured. Cannot save photos.');
   }
@@ -103,6 +122,7 @@ export const savePhotos = async (userId, originalImageUrl, generatedImages, them
 };
 
 export const getUserPhotos = async (userId, limit = 50) => {
+  initializeGCS();
   const { getUserPhotos: originalGetUserPhotos } = await import('./database.js');
   const photos = await originalGetUserPhotos(userId, limit);
   
@@ -150,6 +170,7 @@ export const getUserPhotos = async (userId, limit = 50) => {
 };
 
 export const getPhotoById = async (photoId, userId) => {
+  initializeGCS();
   const { getPhotoById: originalGetPhotoById } = await import('./database.js');
   const photo = await originalGetPhotoById(photoId, userId);
 
@@ -190,6 +211,7 @@ export const getPhotoById = async (photoId, userId) => {
 };
 
 export const deletePhoto = async (photoId, userId) => {
+  initializeGCS();
   if (!bucket) {
     throw new Error('Google Cloud Storage not configured. Cannot delete photos.');
   }
