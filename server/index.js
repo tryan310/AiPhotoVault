@@ -39,10 +39,11 @@ console.log('🔑 API Key length:', process.env.GEMINI_API_KEY ? process.env.GEM
 await initDatabase();
 
 const app = express();
-// Railway port configuration
-const PORT = process.env.PORT || 8080;
+// Railway port configuration - Railway expects backend services to use PORT env var
+const PORT = process.env.PORT || 3000;
 console.log('🔧 Railway PORT environment variable:', process.env.PORT);
 console.log('🔧 Using port:', PORT);
+console.log('🔧 Railway should set PORT automatically for backend services');
 
 // Initialize Stripe with your secret key
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
