@@ -70,7 +70,7 @@ export const redirectToCheckout = async (priceId: string): Promise<void> => {
     // calls a backend endpoint that you need to create.
     //
     // 1. The client sends the `priceId` to your server.
-    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/create-checkout-session`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/create-checkout-session`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

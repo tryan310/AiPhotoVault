@@ -28,7 +28,7 @@ const SuccessPage: React.FC<SuccessPageProps> = ({ onContinue }) => {
 
   const verifyPayment = async (sessionId: string) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/subscription/${sessionId}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/subscription/${sessionId}`);
       const data = await response.json();
 
       if (data.status === 'success') {
