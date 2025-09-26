@@ -103,10 +103,62 @@ app.get('/debug', (req, res) => {
     environment: {
       NODE_ENV: process.env.NODE_ENV,
       PORT: process.env.PORT,
-      FRONTEND_URL: process.env.FRONTEND_URL
+      FRONTEND_URL: process.env.FRONTEND_URL,
+      GCS_BUCKET_NAME: process.env.GCS_BUCKET_NAME,
+      GOOGLE_CLOUD_PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT_ID,
+      GCS_KEY_B64: process.env.GCS_KEY_B64 ? 'Set (base64 encoded)' : 'Not set'
     },
     server: 'Express.js server is running properly'
   });
+});
+
+// GCS Test endpoint
+app.get('/gcs-test', async (req, res) => {
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    // Check if GCS key file exists
+    const keyFilePath = '/app/gcs-key.json';
+    const keyFileExists = fs.existsSync(keyFilePath);
+    
+    let keyFileContent = null;
+    if (keyFileExists) {
+      try {
+        const content = fs.readFileSync(keyFilePath, 'utf8');
+        const parsed = JSON.parse(content);
+        keyFileContent = {
+          type: parsed.type,
+          project_id: parsed.project_id,
+          client_email: parsed.client_email,
+          has_private_key: !!parsed.private_key
+        };
+      } catch (error) {
+        keyFileContent = { error: error.message };
+      }
+    }
+    
+    res.json({
+      status: 'GCS Test',
+      timestamp: new Date().toISOString(),
+      gcsKeyFile: {
+        path: keyFilePath,
+        exists: keyFileExists,
+        content: keyFileContent
+      },
+      environment: {
+        GCS_BUCKET_NAME: process.env.GCS_BUCKET_NAME,
+        GOOGLE_CLOUD_PROJECT_ID: process.env.GOOGLE_CLOUD_PROJECT_ID,
+        GCS_KEY_B64: process.env.GCS_KEY_B64 ? 'Set (base64 encoded)' : 'Not set'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'GCS Test Error',
+      error: error.message,
+      stack: error.stack
+    });
+  }
 });
 
 // Simple test endpoint
