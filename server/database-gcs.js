@@ -12,7 +12,7 @@ dotenv.config();
 
 const GCS_BUCKET_NAME = process.env.GCS_BUCKET_NAME;
 const GOOGLE_CLOUD_PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID;
-const GOOGLE_CLOUD_KEY_FILE = process.env.GOOGLE_CLOUD_KEY_FILE;
+const GOOGLE_CLOUD_KEY_FILE = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
 let storage;
 let bucket;
