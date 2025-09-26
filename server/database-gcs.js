@@ -13,6 +13,7 @@ dotenv.config();
 const GCS_BUCKET_NAME = process.env.GCS_BUCKET_NAME || process.env.GOOGLE_CLOUD_BUCKET_NAME;
 const GOOGLE_CLOUD_PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID;
 const GOOGLE_CLOUD_KEY_FILE = process.env.GOOGLE_CLOUD_KEY_FILE || process.env.GOOGLE_APPLICATION_CREDENTIALS || '/app/gcs-key.json';
+const GCS_KEY_B64 = process.env.GCS_KEY_B64;
 
 let storage;
 let bucket;
@@ -27,12 +28,29 @@ const initializeGCS = () => {
   console.log('GOOGLE_CLOUD_PROJECT_ID:', GOOGLE_CLOUD_PROJECT_ID);
   console.log('GOOGLE_CLOUD_KEY_FILE:', GOOGLE_CLOUD_KEY_FILE);
   
-  if (GCS_BUCKET_NAME && GOOGLE_CLOUD_PROJECT_ID && GOOGLE_CLOUD_KEY_FILE) {
+  if (GCS_BUCKET_NAME && GOOGLE_CLOUD_PROJECT_ID) {
     try {
-      storage = new Storage({
-        projectId: GOOGLE_CLOUD_PROJECT_ID,
-        keyFilename: GOOGLE_CLOUD_KEY_FILE,
-      });
+      // Try direct credentials approach first (from GCS_KEY_B64)
+      if (GCS_KEY_B64) {
+        console.log('🔧 Using direct credentials from GCS_KEY_B64');
+        const credentials = JSON.parse(Buffer.from(GCS_KEY_B64, 'base64').toString());
+        storage = new Storage({
+          projectId: GOOGLE_CLOUD_PROJECT_ID,
+          credentials: {
+            client_email: credentials.client_email,
+            private_key: credentials.private_key,
+          },
+        });
+      } else if (GOOGLE_CLOUD_KEY_FILE) {
+        console.log('🔧 Using key file:', GOOGLE_CLOUD_KEY_FILE);
+        storage = new Storage({
+          projectId: GOOGLE_CLOUD_PROJECT_ID,
+          keyFilename: GOOGLE_CLOUD_KEY_FILE,
+        });
+      } else {
+        throw new Error('No GCS credentials available');
+      }
+      
       bucket = storage.bucket(GCS_BUCKET_NAME);
       gcsInitialized = true;
       console.log(`✅ Google Cloud Storage initialized for bucket: ${GCS_BUCKET_NAME}`);
@@ -46,6 +64,7 @@ const initializeGCS = () => {
     console.warn('⚠️ Missing variables:', {
       GCS_BUCKET_NAME: !GCS_BUCKET_NAME,
       GOOGLE_CLOUD_PROJECT_ID: !GOOGLE_CLOUD_PROJECT_ID,
+      GCS_KEY_B64: !GCS_KEY_B64,
       GOOGLE_CLOUD_KEY_FILE: !GOOGLE_CLOUD_KEY_FILE
     });
   }
