@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stripe Test</title>
+</head>
+<body>
+    <h1>Stripe Test</h1>
+    <div id="result"></div>
+    
+    <script type="module">
+        console.log('Testing Stripe import...');
+        
+        try {
+            const { loadStripe } = await import('@stripe/stripe-js');
+            console.log('✅ Stripe imported successfully');
+            
+            const stripe = await loadStripe('pk_test_51SBP2kCnTKaHMCugyuBNKYpNyruf2XTetbAuDEJNY2iqu4L0GTgFAOrRIzsltYElTUr757TDLJp4TnWS2WEsHj0U00UO4BPC8O');
+            console.log('✅ Stripe loaded successfully:', stripe);
+            
+            document.getElementById('result').innerHTML = '✅ Stripe loaded successfully!';
+        } catch (error) {
+            console.error('❌ Stripe error:', error);
+            document.getElementById('result').innerHTML = '❌ Error: ' + error.message;
+        }
+    </script>
+</body>
+</html>

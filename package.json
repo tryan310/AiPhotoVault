@@ -1,0 +1,48 @@
+{
+  "name": "ai-photo-booth",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "server": "node server/index.js",
+    "dev:full": "concurrently \"npm run dev\" \"npm run server\"",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^7.17.1",
+    "@google/genai": "^1.20.0",
+    "@stripe/stripe-js": "^6.0.0",
+    "@supabase/supabase-js": "^2.58.0",
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-session": "^1.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-jwt": "^4.0.1",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "sharp": "^0.33.5",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
+    "stripe": "^14.21.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/express-session": "^1.18.2",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.14.0",
+    "@types/passport": "^1.0.17",
+    "@types/passport-google-oauth20": "^2.0.16",
+    "@types/passport-jwt": "^4.0.1",
+    "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^8.2.2",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}

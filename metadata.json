@@ -1,0 +1,5 @@
+{
+  "name": "AI Photo Booth",
+  "description": "Upload your photos, choose a theme, and let AI generate a new version of your photo. Perfect for creating professional headshots, dating profile pictures, and more.",
+  "requestFramePermissions": []
+}
