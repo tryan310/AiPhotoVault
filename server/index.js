@@ -846,10 +846,20 @@ process.on('unhandledRejection', (reason, promise) => {
   process.exit(1);
 });
 
+// Add startup logging
+console.log('🔧 Starting server...');
+console.log('🔧 Environment variables:');
+console.log('  NODE_ENV:', process.env.NODE_ENV);
+console.log('  PORT:', process.env.PORT);
+console.log('  FRONTEND_URL:', process.env.FRONTEND_URL);
+console.log('  GCS_BUCKET_NAME:', process.env.GCS_BUCKET_NAME);
+console.log('  GOOGLE_CLOUD_PROJECT_ID:', process.env.GOOGLE_CLOUD_PROJECT_ID);
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`💳 Stripe integration ready`);
   console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌍 CORS enabled for: ${process.env.FRONTEND_URL || 'localhost'}`);
+  console.log('✅ All routes registered successfully');
 });
