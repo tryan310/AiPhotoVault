@@ -858,6 +858,7 @@ console.log('  PORT:', process.env.PORT);
 console.log('  FRONTEND_URL:', process.env.FRONTEND_URL);
 console.log('  GCS_BUCKET_NAME:', process.env.GCS_BUCKET_NAME);
 console.log('  GOOGLE_CLOUD_PROJECT_ID:', process.env.GOOGLE_CLOUD_PROJECT_ID);
+console.log('  GCS_KEY_B64:', process.env.GCS_KEY_B64 ? 'Set (base64 encoded)' : 'Not set');
 console.log('🔧 Using PORT:', PORT);
 console.log('🔧 Railway PORT env var:', process.env.PORT);
 console.log('🔧 Railway PORT type:', typeof process.env.PORT);
