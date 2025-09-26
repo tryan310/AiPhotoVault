@@ -125,6 +125,66 @@ app.get('/api/debug/gcs', async (req, res) => {
   }
 });
 
+// GCS Key File Test endpoint
+app.get('/api/debug/gcs-key', async (req, res) => {
+  try {
+    const fs = await import('fs');
+    const path = await import('path');
+    
+    const keyFilePaths = [
+      '/app/gcs-key.json',
+      './gcs-key.json',
+      process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      process.env.GOOGLE_CLOUD_KEY_FILE
+    ].filter(Boolean);
+    
+    const results = {};
+    
+    for (const keyPath of keyFilePaths) {
+      try {
+        const exists = fs.existsSync(keyPath);
+        results[keyPath] = {
+          exists,
+          size: exists ? fs.statSync(keyPath).size : 0,
+          readable: exists ? fs.accessSync(keyPath, fs.constants.R_OK) === undefined : false
+        };
+        
+        if (exists) {
+          const content = fs.readFileSync(keyPath, 'utf8');
+          const parsed = JSON.parse(content);
+          results[keyPath].valid = !!parsed.private_key && !!parsed.client_email;
+          results[keyPath].project_id = parsed.project_id;
+          results[keyPath].client_email = parsed.client_email;
+        }
+      } catch (error) {
+        results[keyPath] = {
+          exists: false,
+          error: error.message
+        };
+      }
+    }
+    
+    res.json({
+      status: 'GCS Key File Test',
+      timestamp: new Date().toISOString(),
+      environment: {
+        GOOGLE_APPLICATION_CREDENTIALS: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+        GOOGLE_CLOUD_KEY_FILE: process.env.GOOGLE_CLOUD_KEY_FILE,
+        GCS_KEY_B64: process.env.GCS_KEY_B64 ? 'Set (base64 encoded)' : 'Not set'
+      },
+      keyFiles: results,
+      workingDirectory: process.cwd(),
+      nodeVersion: process.version
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'GCS Key File Test Error',
+      error: error.message,
+      stack: error.stack
+    });
+  }
+});
+
 // ==================== AUTHENTICATION ENDPOINTS ====================
 
 // Register endpoint
