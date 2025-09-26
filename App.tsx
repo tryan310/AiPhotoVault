@@ -164,6 +164,18 @@ const App: React.FC = () => {
     setAppState(AppState.EMAIL);
   };
 
+  const handleShowLoginForm = () => {
+    setAppState(AppState.LOGIN_FORM);
+  };
+
+  const handleShowRegisterForm = () => {
+    setAppState(AppState.REGISTER_FORM);
+  };
+
+  const handleBackToMain = () => {
+    setAppState(AppState.LOGIN);
+  };
+
   const handleEmailSubmit = (email: string) => {
     setUserEmail(email);
     setAppState(AppState.PRICING);
@@ -221,15 +233,21 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (appState) {
       case AppState.LOGIN:
-        return showLoginForm ? (
+        return <LoginPage onAccountCreate={handleAccountCreate} onShowLogin={handleShowLoginForm} onShowRegister={handleShowRegisterForm} />;
+      case AppState.LOGIN_FORM:
+        return (
           <LoginForm 
             onLogin={handleLogin} 
-            onSwitchToRegister={() => setShowLoginForm(false)} 
+            onSwitchToRegister={handleShowRegisterForm}
+            onBack={handleBackToMain}
           />
-        ) : (
+        );
+      case AppState.REGISTER_FORM:
+        return (
           <RegisterForm 
             onRegister={handleRegister} 
-            onSwitchToLogin={() => setShowLoginForm(true)} 
+            onSwitchToLogin={handleShowLoginForm}
+            onBack={handleBackToMain}
           />
         );
       case AppState.OAUTH_CALLBACK:
@@ -287,7 +305,7 @@ const App: React.FC = () => {
     }
   };
 
-  const showHeaderFooter = ![AppState.LOGIN, AppState.OAUTH_CALLBACK, AppState.EMAIL, AppState.PRICING, AppState.SUCCESS, AppState.SAFARI_SUCCESS, AppState.GALLERY].includes(appState);
+  const showHeaderFooter = ![AppState.LOGIN, AppState.LOGIN_FORM, AppState.REGISTER_FORM, AppState.OAUTH_CALLBACK, AppState.EMAIL, AppState.PRICING, AppState.SUCCESS, AppState.SAFARI_SUCCESS, AppState.GALLERY].includes(appState);
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center p-4 sm:p-6 lg:p-8">

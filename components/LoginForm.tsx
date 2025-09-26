@@ -5,9 +5,10 @@ import { ArrowRightIcon, SpinnerIcon } from './icons';
 interface LoginFormProps {
   onLogin: (user: any) => void;
   onSwitchToRegister: () => void;
+  onBack?: () => void;
 }
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onSwitchToRegister }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onSwitchToRegister, onBack }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +39,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onSwitchToRegister }) =>
 
   return (
     <div className="bg-[#131313] p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-800">
-      <h2 className="text-3xl font-bold text-center mb-6 text-gray-100">Welcome Back</h2>
+      {/* Logo and Title */}
+      <div className="flex items-center justify-center gap-3 mb-6">
+        <img 
+          src="/Generated Image September 25, 2025 - 7_23PM.png" 
+          alt="AI Photo Vault Logo" 
+          className="w-12 h-12 object-contain rounded-lg"
+          style={{
+            backgroundColor: 'transparent',
+            filter: 'brightness(1.1) contrast(1.1)',
+            mixBlendMode: 'screen'
+          }}
+        />
+        <h2 className="text-3xl font-bold text-gray-100">Welcome Back</h2>
+      </div>
       <p className="text-center text-gray-400 mb-8">
         Sign in to your account to continue
       </p>
@@ -138,6 +152,21 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, onSwitchToRegister }) =>
           </button>
         </p>
       </div>
+
+      {/* Back Button */}
+      {onBack && (
+        <div className="mt-6 pt-4 border-t border-gray-700">
+          <button
+            onClick={onBack}
+            className="flex items-center justify-center gap-2 text-gray-400 hover:text-white transition-colors duration-200 w-full"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to main page
+          </button>
+        </div>
+      )}
     </div>
   );
 };

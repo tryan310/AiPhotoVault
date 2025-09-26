@@ -1,8 +1,11 @@
 import React from 'react';
 import { ArrowRightIcon, StarIcon } from './icons';
+import { THEMES } from '../constants';
 
 interface LoginPageProps {
   onAccountCreate: () => void;
+  onShowLogin?: () => void;
+  onShowRegister?: () => void;
 }
 
 const sampleImages = [
@@ -28,7 +31,7 @@ const Testimonial: React.FC<{ quote: string; author: string }> = ({ quote, autho
   </div>
 );
 
-const LoginPage: React.FC<LoginPageProps> = ({ onAccountCreate }) => {
+const LoginPage: React.FC<LoginPageProps> = ({ onAccountCreate, onShowLogin, onShowRegister }) => {
   const images = [...sampleImages, ...sampleImages]; // Duplicate for seamless scroll
 
   return (
@@ -46,19 +49,51 @@ const LoginPage: React.FC<LoginPageProps> = ({ onAccountCreate }) => {
       </div>
       
       <div className="relative z-20 flex flex-col items-center">
-        <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-tight leading-tight">
-          Create Your Perfect AI Headshots
-        </h1>
+        {/* Logo and Title */}
+        <div className="flex items-center gap-3 mb-8">
+          <img 
+            src="/Generated Image September 25, 2025 - 7_23PM.png" 
+            alt="AI Photo Vault Logo" 
+            className="w-16 h-16 object-contain rounded-lg"
+            style={{
+              backgroundColor: 'transparent',
+              filter: 'brightness(1.1) contrast(1.1)',
+              mixBlendMode: 'screen'
+            }}
+          />
+          <h1 className="text-5xl font-black tracking-wide bg-gradient-to-r from-cyan-300 via-white to-blue-300 bg-clip-text text-transparent hover:from-cyan-200 hover:via-white hover:to-purple-300 transition-all duration-500 hover:scale-105 hover:drop-shadow-2xl">
+            AI Photo Vault
+          </h1>
+        </div>
+        
+        <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-tight leading-tight">
+          Create Your Perfect AI Photos
+        </h2>
         <p className="max-w-2xl mx-auto text-lg text-slate-300 mb-10">
           Get professional-quality studio photos, dating profile pictures, and creative portraits in any style imaginable.
         </p>
-        <button 
-            onClick={onAccountCreate}
-            className="group flex items-center justify-center gap-3 px-8 py-4 bg-indigo-600 text-white font-bold text-lg rounded-lg shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500/50 transition-all transform hover:scale-105"
-        >
-            Create your photos
-            <ArrowRightIcon className="w-6 h-6 transition-transform group-hover:translate-x-1" />
-        </button>
+        <div className="flex flex-col gap-4 items-center">
+          <div className="px-8 py-4 bg-indigo-600 text-white font-bold text-lg rounded-lg shadow-lg">
+              Create your photos
+          </div>
+          
+          {onShowLogin && onShowRegister && (
+            <div className="flex gap-3">
+              <button 
+                  onClick={onShowLogin}
+                  className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg transition-all duration-300"
+              >
+                  Sign In
+              </button>
+              <button 
+                  onClick={onShowRegister}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-300"
+              >
+                  Sign Up
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="relative z-20 w-full max-w-5xl mt-24">
@@ -67,6 +102,43 @@ const LoginPage: React.FC<LoginPageProps> = ({ onAccountCreate }) => {
           <Testimonial quote="This is a game-changer for my LinkedIn profile. I got a dozen amazing headshots in minutes." author="Sarah L." />
           <Testimonial quote="I finally have dating app photos I'm actually confident about. The quality is incredible!" author="Mike R." />
           <Testimonial quote="As an artist, I love experimenting with the different creative styles. The fantasy and anime packs are my favorite." author="Jenna K." />
+        </div>
+      </div>
+
+      {/* Available Themes Section */}
+      <div className="relative z-20 w-full max-w-6xl mt-24">
+        <h2 className="text-3xl font-bold text-white mb-8 text-center">Choose Your Style</h2>
+        <p className="text-center text-slate-300 mb-12 max-w-2xl mx-auto">
+          Transform your photos with our diverse collection of AI-powered themes. From professional headshots to creative fantasy portraits.
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {THEMES.map((theme) => {
+            const IconComponent = theme.icon;
+            return (
+              <div key={theme.id} className="bg-slate-800/50 p-6 rounded-lg border border-slate-700 hover:border-slate-600 transition-all duration-300 hover:bg-slate-800/70 group">
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-12 h-12 mb-4 flex items-center justify-center text-slate-400 group-hover:text-white transition-colors duration-300">
+                    <IconComponent className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white mb-2">{theme.title}</h3>
+                  <p className="text-sm text-slate-400 leading-relaxed">
+                    {theme.id === 'linkedin' && 'Professional business headshots for your career'}
+                    {theme.id === 'dating' && 'Attractive photos for dating profiles'}
+                    {theme.id === 'selfie' && 'Enhanced selfies with professional quality'}
+                    {theme.id === 'athlete' && 'Dynamic athletic portraits with power'}
+                    {theme.id === 'vintage' && 'Classic 1950s vintage aesthetic'}
+                    {theme.id === 'superhero' && 'Comic book superhero transformations'}
+                    {theme.id === 'fantasy' && 'Epic fantasy character portraits'}
+                    {theme.id === 'anime' && 'Anime-style artistic portraits'}
+                    {theme.id === 'cyberpunk' && 'Futuristic cyberpunk aesthetics'}
+                    {theme.id === 'royal' && 'Regal royal court portraits'}
+                    {theme.id === 'pirate' && 'Swashbuckling pirate adventures'}
+                    {theme.id === 'puppy' && 'Playful photos with adorable puppies'}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

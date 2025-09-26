@@ -2,6 +2,8 @@ import React from 'react';
 
 export enum AppState {
   LOGIN = 'LOGIN',
+  LOGIN_FORM = 'LOGIN_FORM',
+  REGISTER_FORM = 'REGISTER_FORM',
   OAUTH_CALLBACK = 'OAUTH_CALLBACK',
   DASHBOARD = 'DASHBOARD',
   EMAIL = 'EMAIL',
