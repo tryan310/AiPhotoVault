@@ -854,6 +854,7 @@ console.log('  PORT:', process.env.PORT);
 console.log('  FRONTEND_URL:', process.env.FRONTEND_URL);
 console.log('  GCS_BUCKET_NAME:', process.env.GCS_BUCKET_NAME);
 console.log('  GOOGLE_CLOUD_PROJECT_ID:', process.env.GOOGLE_CLOUD_PROJECT_ID);
+console.log('🔧 Using PORT:', PORT);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
