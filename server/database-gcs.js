@@ -10,9 +10,9 @@ import sharp from 'sharp'; // For image processing
 
 dotenv.config();
 
-const GCS_BUCKET_NAME = process.env.GCS_BUCKET_NAME;
+const GCS_BUCKET_NAME = process.env.GCS_BUCKET_NAME || process.env.GOOGLE_CLOUD_BUCKET_NAME;
 const GOOGLE_CLOUD_PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT_ID;
-const GOOGLE_CLOUD_KEY_FILE = process.env.GOOGLE_APPLICATION_CREDENTIALS || '/app/gcs-key.json';
+const GOOGLE_CLOUD_KEY_FILE = process.env.GOOGLE_CLOUD_KEY_FILE || process.env.GOOGLE_APPLICATION_CREDENTIALS || '/app/gcs-key.json';
 
 let storage;
 let bucket;
@@ -21,6 +21,11 @@ let gcsInitialized = false;
 // Lazy initialization of GCS
 const initializeGCS = () => {
   if (gcsInitialized) return;
+  
+  console.log('🔧 GCS Environment Variables:');
+  console.log('GCS_BUCKET_NAME:', GCS_BUCKET_NAME);
+  console.log('GOOGLE_CLOUD_PROJECT_ID:', GOOGLE_CLOUD_PROJECT_ID);
+  console.log('GOOGLE_CLOUD_KEY_FILE:', GOOGLE_CLOUD_KEY_FILE);
   
   if (GCS_BUCKET_NAME && GOOGLE_CLOUD_PROJECT_ID && GOOGLE_CLOUD_KEY_FILE) {
     try {
@@ -33,10 +38,16 @@ const initializeGCS = () => {
       console.log(`✅ Google Cloud Storage initialized for bucket: ${GCS_BUCKET_NAME}`);
     } catch (error) {
       console.error('❌ Failed to initialize Google Cloud Storage:', error.message);
+      console.error('❌ Error details:', error);
       console.warn('⚠️ GCS functions will not be available.');
     }
   } else {
     console.warn('⚠️ Google Cloud Storage environment variables not fully configured. GCS functions will not be available.');
+    console.warn('⚠️ Missing variables:', {
+      GCS_BUCKET_NAME: !GCS_BUCKET_NAME,
+      GOOGLE_CLOUD_PROJECT_ID: !GOOGLE_CLOUD_PROJECT_ID,
+      GOOGLE_CLOUD_KEY_FILE: !GOOGLE_CLOUD_KEY_FILE
+    });
   }
 };
 
@@ -49,11 +60,20 @@ const generateSignedUrl = async (fileName, expirationMinutes = 60) => {
     initializeGCS();
     if (!bucket) {
       console.error('❌ GCS bucket not available for signed URL generation');
+      console.error('❌ Bucket status:', { bucket: !!bucket, storage: !!storage, gcsInitialized });
       return null;
     }
     
     console.log(`🔗 Generating signed URL for: ${fileName}`);
     const file = bucket.file(fileName);
+    
+    // Check if file exists first
+    const [exists] = await file.exists();
+    if (!exists) {
+      console.error(`❌ File does not exist: ${fileName}`);
+      return null;
+    }
+    
     const [signedUrl] = await file.getSignedUrl({
       version: 'v4',
       action: 'read',
@@ -63,6 +83,12 @@ const generateSignedUrl = async (fileName, expirationMinutes = 60) => {
     return signedUrl;
   } catch (error) {
     console.error('❌ Error generating signed URL for', fileName, ':', error);
+    console.error('❌ Error details:', {
+      message: error.message,
+      code: error.code,
+      fileName: fileName,
+      bucket: GCS_BUCKET_NAME
+    });
     return null;
   }
 };
