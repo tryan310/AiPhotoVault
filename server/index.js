@@ -86,7 +86,22 @@ app.get('/test', (req, res) => {
   res.json({ 
     status: 'Simple Test Working',
     timestamp: new Date().toISOString(),
-    message: 'This is a simple test endpoint'
+    message: 'This is a simple test endpoint',
+    server: 'Express.js server is running'
+  });
+});
+
+// Debug endpoint to check server status
+app.get('/debug', (req, res) => {
+  res.json({
+    status: 'Debug endpoint working',
+    timestamp: new Date().toISOString(),
+    environment: {
+      NODE_ENV: process.env.NODE_ENV,
+      PORT: process.env.PORT,
+      FRONTEND_URL: process.env.FRONTEND_URL
+    },
+    server: 'Express.js server is running properly'
   });
 });
 
@@ -820,8 +835,21 @@ app.post('/api/upgrade-subscription', authenticateToken, getUserFromToken, async
   }
 });
 
+// Add error handling for server startup
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`💳 Stripe integration ready`);
+  console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🌍 CORS enabled for: ${process.env.FRONTEND_URL || 'localhost'}`);
 });
