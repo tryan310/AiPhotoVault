@@ -139,6 +139,15 @@ const App: React.FC = () => {
     } catch (err) {
       console.error(err);
       
+      // Check if user needs to re-authenticate
+      if (err instanceof Error && (err as any).needsReauth) {
+        setError('Your session has expired. Please log in again.');
+        setAppState(AppState.LOGIN);
+        setIsAuthenticated(false);
+        setUser(null);
+        return;
+      }
+      
       // Check if user needs to purchase credits
       if (err instanceof Error && (err as any).redirectToPricing) {
         setError(`You need at least ${photoCount} credits to generate photos. You have ${(err as any).availableCredits || 0} credits remaining.`);

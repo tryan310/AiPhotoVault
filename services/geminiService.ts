@@ -98,6 +98,13 @@ export const generateAiPhotos = async (file: File, prompt: string, photoCount: n
         });
 
         if (!response.ok) {
+            // Handle 401 unauthorized (expired token)
+            if (response.status === 401) {
+                const error = new Error('Your session has expired. Please log in again.');
+                (error as any).needsReauth = true;
+                throw error;
+            }
+            
             const errorData = await response.json();
             
             // If user needs credits, throw a special error

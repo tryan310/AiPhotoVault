@@ -192,11 +192,38 @@ class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!this.token;
+    if (!this.token) {
+      return false;
+    }
+    
+    // Check if token is expired by trying to decode it
+    try {
+      const payload = JSON.parse(atob(this.token.split('.')[1]));
+      const currentTime = Math.floor(Date.now() / 1000);
+      if (payload.exp && payload.exp < currentTime) {
+        // Token is expired, clear it
+        this.clearAuth();
+        return false;
+      }
+      return true;
+    } catch (error) {
+      // Invalid token format, clear it
+      this.clearAuth();
+      return false;
+    }
   }
 
   getToken(): string | null {
     return this.token;
+  }
+
+  // Helper method to handle 401 responses
+  private handleUnauthorized(): void {
+    this.clearAuth();
+    // Optionally redirect to login page
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
   }
 
   getCurrentUserSync(): User | null {
