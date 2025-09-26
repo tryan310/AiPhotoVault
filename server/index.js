@@ -82,9 +82,6 @@ app.get('/health', (req, res) => {
 // GCS Debug endpoint (for production debugging)
 app.get('/api/debug/gcs', async (req, res) => {
   try {
-    const { initializeGCS } = await import('./database-gcs.js');
-    initializeGCS();
-    
     // Import the GCS functions to test
     const { getUserPhotos } = await import('./database-gcs.js');
     
