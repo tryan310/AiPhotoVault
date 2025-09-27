@@ -192,7 +192,12 @@ class AuthService {
   }
 
   isAuthenticated(): boolean {
+    console.log('🔍 AuthService.isAuthenticated() called');
+    console.log('🔍 Token exists:', !!this.token);
+    console.log('🔍 Token value:', this.token);
+    
     if (!this.token) {
+      console.log('❌ No token found');
       return false;
     }
     
@@ -205,19 +210,24 @@ class AuthService {
         payload = JSON.parse(atob(this.token.split('.')[1]));
         const currentTime = Math.floor(Date.now() / 1000);
         if (payload.exp && payload.exp < currentTime) {
+          console.log('❌ JWT token expired');
           this.clearAuth();
           return false;
         }
       } else {
         // Our simplified base64 format
         payload = JSON.parse(atob(this.token));
+        console.log('🔍 Decoded payload:', payload);
         if (payload.exp && payload.exp < Date.now()) {
+          console.log('❌ Base64 token expired');
           this.clearAuth();
           return false;
         }
       }
+      console.log('✅ Token is valid');
       return true;
     } catch (error) {
+      console.log('❌ Token decode error:', error);
       // Invalid token format, clear it
       this.clearAuth();
       return false;
