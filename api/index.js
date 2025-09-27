@@ -31,8 +31,13 @@ import {
 // Load environment variables
 dotenv.config();
 
-// Initialize database
-await initDatabase();
+// Initialize database with error handling
+try {
+  await initDatabase();
+  console.log('✅ Database initialized successfully');
+} catch (error) {
+  console.error('❌ Database initialization failed:', error);
+}
 
 const app = express();
 
@@ -101,28 +106,33 @@ app.post('/api/auth/register', async (req, res) => {
 
 app.post('/api/auth/login', async (req, res) => {
   try {
+    console.log('🔐 Login attempt:', { email: req.body.email });
+    
     const { email, password } = req.body;
     
     if (!email || !password) {
+      console.log('❌ Missing credentials');
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
     // Get user by email
     const user = await getUserByEmail(email);
     if (!user) {
+      console.log('❌ User not found:', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     // Check password
     const isValidPassword = await comparePassword(password, user.password_hash);
     if (!isValidPassword) {
+      console.log('❌ Invalid password for user:', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     // Generate JWT token
     const token = generateToken(user.id);
     
-    res.json({ 
+    const response = { 
       success: true, 
       token, 
       user: { 
@@ -131,10 +141,13 @@ app.post('/api/auth/login', async (req, res) => {
         email: user.email, 
         credits: user.credits 
       } 
-    });
+    };
+    
+    console.log('✅ Login successful for user:', user.id);
+    res.json(response);
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ error: 'Login failed' });
+    console.error('❌ Login error:', error);
+    res.status(500).json({ error: 'Login failed', details: error.message });
   }
 });
 

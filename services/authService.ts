@@ -52,41 +52,83 @@ class AuthService {
   }
 
   async register(email: string, password: string, name?: string): Promise<AuthResponse> {
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password, name }),
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, name }),
+      });
 
-    const data = await response.json();
+      // Check if response is ok before trying to parse JSON
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Registration failed:', response.status, errorText);
+        throw new Error(`Registration failed: ${response.status} ${errorText}`);
+      }
 
-    if (!response.ok) {
-      throw new Error(data.error || 'Registration failed');
+      // Try to parse JSON with better error handling
+      let data;
+      try {
+        const responseText = await response.text();
+        console.log('Registration response text:', responseText);
+        data = JSON.parse(responseText);
+      } catch (jsonError) {
+        console.error('JSON parsing error:', jsonError);
+        throw new Error('Invalid response format from server');
+      }
+
+      if (!data.success || !data.token || !data.user) {
+        throw new Error('Invalid response format from server');
+      }
+
+      this.storeAuth(data.token, data.user);
+      return data;
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw error;
     }
-
-    this.storeAuth(data.token, data.user);
-    return data;
   }
 
   async login(email: string, password: string): Promise<AuthResponse> {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const data = await response.json();
+      // Check if response is ok before trying to parse JSON
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Login failed:', response.status, errorText);
+        throw new Error(`Login failed: ${response.status} ${errorText}`);
+      }
 
-    if (!response.ok) {
-      throw new Error(data.error || 'Login failed');
+      // Try to parse JSON with better error handling
+      let data;
+      try {
+        const responseText = await response.text();
+        console.log('Login response text:', responseText);
+        data = JSON.parse(responseText);
+      } catch (jsonError) {
+        console.error('JSON parsing error:', jsonError);
+        throw new Error('Invalid response format from server');
+      }
+
+      if (!data.success || !data.token || !data.user) {
+        throw new Error('Invalid response format from server');
+      }
+
+      this.storeAuth(data.token, data.user);
+      return data;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     }
-
-    this.storeAuth(data.token, data.user);
-    return data;
   }
 
   async loginWithGoogle(): Promise<void> {
