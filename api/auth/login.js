@@ -38,7 +38,7 @@ export default async function handler(req, res) {
     console.log('User authenticated successfully:', { id: user.id, email: user.email });
 
     // Generate JWT token
-    const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+    const jwtSecret = process.env.JWT_SECRET || 'my-super-secret-jwt-key-2024';
     console.log('JWT Secret available:', !!process.env.JWT_SECRET);
     
     const token = jwt.sign(
