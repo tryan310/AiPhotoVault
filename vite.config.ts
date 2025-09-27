@@ -13,6 +13,13 @@ export default defineConfig(({ mode }) => {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
           'Expires': '0'
+        },
+        proxy: {
+          '/api': {
+            target: 'http://localhost:3001',
+            changeOrigin: true,
+            secure: false,
+          }
         }
       },
       plugins: [react()],

@@ -2,9 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { AppState, Theme } from './types';
 import { generateAiPhotos } from './services/geminiService';
 import { authService, User } from './services/authService';
-import { PhotoIcon } from './components/icons';
-import ImageUploader from './components/ImageUploader';
-import ThemeSelector from './components/ThemeSelector';
+import GenerationPage from './components/GenerationPage';
 import LoadingScreen from './components/LoadingScreen';
 import GeneratedImages from './components/GeneratedImage';
 import LoginPage from './components/LoginPage';
@@ -108,6 +106,17 @@ const App: React.FC = () => {
       return;
     }
 
+    // Store photoCount in a variable for use in catch block
+    const creditsToDeduct = photoCount;
+
+    // Deduct credits immediately when generate is clicked
+    if (user && user.credits >= creditsToDeduct) {
+      const updatedUser = { ...user, credits: user.credits - creditsToDeduct };
+      setUser(updatedUser);
+      // Dispatch event to update other components
+      window.dispatchEvent(new CustomEvent('userUpdated', { detail: updatedUser }));
+    }
+
     setAppState(AppState.GENERATING);
     setIsGenerating(true);
     setError(null);
@@ -119,25 +128,19 @@ const App: React.FC = () => {
         setGeneratedImages(images);
         setAppState(AppState.RESULT);
         setIsGenerating(false);
-        
-        // Refresh user data to show updated credits
-        if (isAuthenticated) {
-          try {
-            const updatedUser = await authService.getCurrentUser();
-            if (updatedUser) {
-              setUser(updatedUser);
-              // Dispatch event to update other components
-              window.dispatchEvent(new CustomEvent('userUpdated', { detail: updatedUser }));
-            }
-          } catch (error) {
-            console.error('Error refreshing user data:', error);
-          }
-        }
       } else {
         throw new Error("The AI model did not return any images. Please try again or use a different photo.");
       }
     } catch (err) {
       console.error(err);
+      
+      // Refund credits if generation fails
+      if (user) {
+        const refundedUser = { ...user, credits: user.credits + creditsToDeduct };
+        setUser(refundedUser);
+        // Dispatch event to update other components
+        window.dispatchEvent(new CustomEvent('userUpdated', { detail: refundedUser }));
+      }
       
       // Check if user needs to re-authenticate
       if (err instanceof Error && (err as any).needsReauth) {
@@ -160,7 +163,7 @@ const App: React.FC = () => {
       setAppState(AppState.SETUP);
       setIsGenerating(false); 
     }
-  }, [uploadedFiles, isAuthenticated]);
+  }, [uploadedFiles, isAuthenticated, user]);
   
   const handleStartOver = () => {
     setAppState(AppState.SETUP);
@@ -281,15 +284,13 @@ const App: React.FC = () => {
         return <SafariSuccessPage />;
       case AppState.SETUP:
         return (
-          <>
-            <ImageUploader onFilesChanged={handleFilesChanged} />
-            <ThemeSelector 
-              onGenerate={handleGenerate}
-              disabled={uploadedFiles.length === 0}
-              uploadedFileCount={uploadedFiles.length}
-              userCredits={user?.credits || 0}
-            />
-          </>
+          <GenerationPage
+            onGenerate={handleGenerate}
+            onFilesChanged={handleFilesChanged}
+            disabled={uploadedFiles.length === 0}
+            uploadedFiles={uploadedFiles}
+            userCredits={user?.credits || 0}
+          />
         );
       case AppState.GENERATING:
         return <LoadingScreen />;
@@ -346,17 +347,12 @@ const App: React.FC = () => {
             <div className="flex items-center gap-4">
               <div className="text-sm text-gray-300">
                 Credits: <span className={`font-semibold ${user.credits >= 10 ? 'text-blue-400' : 'text-red-400'}`}>
-                  {isGenerating ? 'Deducting...' : user.credits}
+                  {user.credits}
                 </span>
               </div>
               {user.credits < 5 && !isGenerating && (
                 <div className="text-xs text-red-400 bg-red-900/30 px-2 py-1 rounded">
                   ⚠️ Need 5+ credits to generate
-                </div>
-              )}
-              {isGenerating && (
-                <div className="text-xs text-yellow-400 bg-yellow-900/30 px-2 py-1 rounded">
-                  🔄 Credits being deducted...
                 </div>
               )}
             </div>

@@ -8,6 +8,7 @@ interface PhotoCountSelectorProps {
 }
 
 const PHOTO_COUNT_OPTIONS = [
+  { count: 1, label: '1 Photo', credits: 1, description: 'Single photo' },
   { count: 5, label: '5 Photos', credits: 5, description: 'Quick generation' },
   { count: 10, label: '10 Photos', credits: 10, description: 'Standard (recommended)' },
   { count: 15, label: '15 Photos', credits: 15, description: 'More variety' },
@@ -27,7 +28,7 @@ const PhotoCountSelector: React.FC<PhotoCountSelectorProps> = ({
         Choose the number of AI photos to generate. Each photo costs 1 credit.
       </p>
       
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 max-w-5xl mx-auto">
         {PHOTO_COUNT_OPTIONS.map((option) => {
           const canAfford = userCredits >= option.credits;
           const isSelected = selectedCount === option.count;

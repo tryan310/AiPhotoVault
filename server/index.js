@@ -495,21 +495,10 @@ app.post('/api/generate-photos', authenticateToken, getUserFromToken, async (req
     const { theme, prompt, userPrompt, imageData, photoCount = 10 } = req.body;
     const creditsPerGeneration = photoCount; // 1 credit per photo
 
-    // Check if user has enough credits
-    if (req.user.credits < creditsPerGeneration) {
-      return res.status(400).json({ 
-        error: 'Insufficient credits',
-        message: 'You need at least 10 credits to generate photos. Please purchase a subscription plan.',
-        required: creditsPerGeneration,
-        available: req.user.credits,
-        redirectToPricing: true
-      });
-    }
-
-    // Spend credits
-    await spendCredits(req.user.id, creditsPerGeneration, `AI photo generation - ${theme}`);
+    // Credits are now deducted in the frontend immediately when generate is clicked
+    // No need to check or deduct credits here as it's handled in the UI
     
-    // Record usage
+    // Record usage for analytics (but don't deduct credits)
     await recordUsage(req.user.id, 'ai_generation', creditsPerGeneration, `Theme: ${theme}`);
 
     // Call Gemini API for actual image generation
@@ -579,8 +568,6 @@ app.post('/api/generate-photos', authenticateToken, getUserFromToken, async (req
       res.json({
         success: true,
         images: generatedImages,
-        creditsUsed: creditsPerGeneration,
-        remainingCredits: req.user.credits - creditsPerGeneration,
         photoId: photoId
       });
     } catch (geminiError) {
@@ -590,8 +577,7 @@ app.post('/api/generate-photos', authenticateToken, getUserFromToken, async (req
         stack: geminiError.stack,
         name: geminiError.name
       });
-      // Refund credits if Gemini fails
-      await addCredits(req.user.id, creditsPerGeneration, 'Refund for failed generation');
+      // Credit refund is now handled in the frontend
       res.status(500).json({ 
         error: 'AI generation service temporarily unavailable',
         details: geminiError.message 

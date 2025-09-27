@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { UploadIcon, XCircleIcon, CheckCircleIcon } from './icons';
+import { UploadIcon, XCircleIcon } from './icons';
 
 interface ImageUploaderProps {
   onFilesChanged: (files: File[]) => void;
@@ -97,30 +97,6 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onFilesChanged }) => {
             </div>
 
             {error && <p className="text-red-400 mt-2">{error}</p>}
-            
-            <div className="w-full max-w-2xl text-left">
-                <h3 className="text-xl font-bold text-slate-100 mb-4 text-center">Photo Guidelines</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                    <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-                        <h4 className="font-semibold text-green-400 mb-2">Do's:</h4>
-                        <ul className="space-y-2 text-slate-300">
-                            <li className="flex items-start gap-2"><CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" /><span>Use high-quality photos.</span></li>
-                            <li className="flex items-start gap-2"><CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" /><span>Good, consistent lighting.</span></li>
-                            <li className="flex items-start gap-2"><CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" /><span>Clear view of your face.</span></li>
-                            <li className="flex items-start gap-2"><CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" /><span>Variety of expressions.</span></li>
-                        </ul>
-                    </div>
-                    <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-                        <h4 className="font-semibold text-red-400 mb-2">Don'ts:</h4>
-                        <ul className="space-y-2 text-slate-300">
-                            <li className="flex items-start gap-2"><XCircleIcon className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" /><span>Wear sunglasses or hats.</span></li>
-                            <li className="flex items-start gap-2"><XCircleIcon className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" /><span>Avoid group photos.</span></li>
-                            <li className="flex items-start gap-2"><XCircleIcon className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" /><span>No filters or heavy makeup.</span></li>
-                            <li className="flex items-start gap-2"><XCircleIcon className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" /><span>Avoid silly faces or duplicates.</span></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
   );

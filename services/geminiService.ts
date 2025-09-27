@@ -82,7 +82,7 @@ export const generateAiPhotos = async (file: File, prompt: string, photoCount: n
 
     // Call the backend API instead of directly calling Gemini
     try {
-        const response = await fetch('/api/generate', {
+        const response = await fetch('/api/generate-photos', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -118,7 +118,15 @@ export const generateAiPhotos = async (file: File, prompt: string, photoCount: n
             throw new Error(errorData.error || 'Failed to generate photos');
         }
 
-        const data = await response.json();
+        let data;
+        try {
+            data = await response.json();
+            console.log('Response data:', data);
+        } catch (jsonError) {
+            console.error('JSON parsing error:', jsonError);
+            console.error('Response text:', await response.text());
+            throw new Error('Invalid response format from server');
+        }
         return data.images || [];
     } catch (error) {
         console.error('Error generating photos:', error);
