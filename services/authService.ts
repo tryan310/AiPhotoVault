@@ -31,10 +31,13 @@ class AuthService {
   }
 
   private storeAuth(token: string, user: User): void {
+    console.log('🔐 storeAuth called with:', { token, user });
     this.token = token;
     this.user = user;
     localStorage.setItem('auth_token', token);
     localStorage.setItem('user', JSON.stringify(user));
+    console.log('🔐 Token stored in localStorage:', localStorage.getItem('auth_token'));
+    console.log('🔐 User stored in localStorage:', localStorage.getItem('user'));
   }
 
   private clearAuth(): void {
@@ -64,6 +67,8 @@ class AuthService {
   }
 
   async login(email: string, password: string): Promise<AuthResponse> {
+    console.log('🔐 Starting login process for:', email);
+    
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: {
@@ -73,12 +78,18 @@ class AuthService {
     });
 
     const data = await response.json();
+    console.log('🔐 Login response:', data);
 
     if (!response.ok) {
       throw new Error(data.error || 'Login failed');
     }
 
+    console.log('🔐 Storing auth data:', { token: data.token, user: data.user });
     this.storeAuth(data.token, data.user);
+    
+    console.log('🔐 After storeAuth - token:', this.token);
+    console.log('🔐 After storeAuth - user:', this.user);
+    
     return data;
   }
 
