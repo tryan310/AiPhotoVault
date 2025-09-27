@@ -27,7 +27,14 @@ class AuthService {
 
   private getStoredUser(): User | null {
     const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null;
+    if (!storedUser || storedUser === 'undefined' || storedUser === 'null') {
+      return null;
+    }
+    try {
+      return JSON.parse(storedUser);
+    } catch (error) {
+      return null;
+    }
   }
 
   private storeAuth(token: string, user: User): void {
@@ -218,7 +225,12 @@ class AuthService {
         }
       } else {
         // Our simplified base64 format
-        payload = JSON.parse(atob(this.token));
+        const decoded = atob(this.token);
+        if (!decoded || decoded === 'undefined' || decoded === 'null') {
+          this.clearAuth();
+          return false;
+        }
+        payload = JSON.parse(decoded);
         if (payload.exp && payload.exp < Date.now()) {
           this.clearAuth();
           return false;
