@@ -20,12 +20,9 @@ class AuthService {
   private user: User | null = null;
 
   constructor() {
-    console.log('🔧 AuthService constructor called');
     // Load token from localStorage on initialization
     this.token = localStorage.getItem('auth_token');
     this.user = this.getStoredUser();
-    console.log('🔧 Constructor loaded token:', this.token);
-    console.log('🔧 Constructor loaded user:', this.user);
   }
 
   private getStoredUser(): User | null {
@@ -34,13 +31,10 @@ class AuthService {
   }
 
   private storeAuth(token: string, user: User): void {
-    console.log('🔐 storeAuth called with:', { token, user });
     this.token = token;
     this.user = user;
     localStorage.setItem('auth_token', token);
     localStorage.setItem('user', JSON.stringify(user));
-    console.log('🔐 Token stored in localStorage:', localStorage.getItem('auth_token'));
-    console.log('🔐 User stored in localStorage:', localStorage.getItem('user'));
   }
 
   private clearAuth(): void {
@@ -70,8 +64,6 @@ class AuthService {
   }
 
   async login(email: string, password: string): Promise<AuthResponse> {
-    console.log('🔐 Starting login process for:', email);
-    
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: {
@@ -81,18 +73,12 @@ class AuthService {
     });
 
     const data = await response.json();
-    console.log('🔐 Login response:', data);
 
     if (!response.ok) {
       throw new Error(data.error || 'Login failed');
     }
 
-    console.log('🔐 Storing auth data:', { token: data.token, user: data.user });
     this.storeAuth(data.token, data.user);
-    
-    console.log('🔐 After storeAuth - token:', this.token);
-    console.log('🔐 After storeAuth - user:', this.user);
-    
     return data;
   }
 
@@ -206,22 +192,15 @@ class AuthService {
   }
 
   isAuthenticated(): boolean {
-    console.log('🔍 AuthService.isAuthenticated() called');
-    console.log('🔍 Token exists:', !!this.token);
-    console.log('🔍 Token value:', this.token);
-    
     // Always check localStorage first in case the instance was recreated
     const storedToken = localStorage.getItem('auth_token');
-    console.log('🔍 Stored token from localStorage:', storedToken);
     
     if (!this.token && storedToken) {
-      console.log('🔧 Loading token from localStorage');
       this.token = storedToken;
       this.user = this.getStoredUser();
     }
     
     if (!this.token) {
-      console.log('❌ No token found');
       return false;
     }
     
@@ -234,24 +213,19 @@ class AuthService {
         payload = JSON.parse(atob(this.token.split('.')[1]));
         const currentTime = Math.floor(Date.now() / 1000);
         if (payload.exp && payload.exp < currentTime) {
-          console.log('❌ JWT token expired');
           this.clearAuth();
           return false;
         }
       } else {
         // Our simplified base64 format
         payload = JSON.parse(atob(this.token));
-        console.log('🔍 Decoded payload:', payload);
         if (payload.exp && payload.exp < Date.now()) {
-          console.log('❌ Base64 token expired');
           this.clearAuth();
           return false;
         }
       }
-      console.log('✅ Token is valid');
       return true;
     } catch (error) {
-      console.log('❌ Token decode error:', error);
       // Invalid token format, clear it
       this.clearAuth();
       return false;
