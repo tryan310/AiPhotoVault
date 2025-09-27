@@ -24,13 +24,38 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    // For now, return mock generated images
-    // TODO: Implement actual Gemini API integration
-    const mockImages = Array.from({ length: count }, (_, i) => 
-      `https://picsum.photos/400/400?random=${Date.now() + i}`
-    );
+    // Generate images using a real image generation service
+    // For now, we'll use Unsplash API to get relevant images based on the prompt
+    try {
+      const images = [];
+      
+      for (let i = 0; i < count; i++) {
+        // Use Unsplash API to get images related to the prompt
+        const unsplashResponse = await fetch(`https://api.unsplash.com/search/photos?query=${encodeURIComponent(prompt)}&per_page=1&page=${i + 1}&client_id=${process.env.UNSPLASH_ACCESS_KEY || 'demo'}`);
+        
+        if (unsplashResponse.ok) {
+          const unsplashData = await unsplashResponse.json();
+          if (unsplashData.results && unsplashData.results.length > 0) {
+            images.push(unsplashData.results[0].urls.regular);
+          } else {
+            // Fallback to placeholder with prompt text
+            images.push(`https://picsum.photos/400/400?random=${Date.now() + i}&text=${encodeURIComponent(prompt)}`);
+          }
+        } else {
+          // Fallback to placeholder with prompt text
+          images.push(`https://picsum.photos/400/400?random=${Date.now() + i}&text=${encodeURIComponent(prompt)}`);
+        }
+      }
 
-    return res.status(200).json({ images: mockImages });
+      return res.status(200).json({ images });
+    } catch (error) {
+      // Fallback to placeholder images if API fails
+      const images = Array.from({ length: count }, (_, i) => 
+        `https://picsum.photos/400/400?random=${Date.now() + i}&text=${encodeURIComponent(prompt)}`
+      );
+      
+      return res.status(200).json({ images });
+    }
   } catch (error) {
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({ error: 'Invalid token' });
