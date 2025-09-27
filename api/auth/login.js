@@ -1,19 +1,21 @@
-import { NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
-export async function POST(request) {
   try {
-    const { email, password } = await request.json();
+    const { email, password } = req.body;
     
     console.log('🔐 Login attempt for:', email);
     console.log('🔑 JWT_SECRET available:', !!process.env.JWT_SECRET);
     
     if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
+      return res.status(400).json({ error: 'Email and password are required' });
     }
 
     // For now, accept any email/password combination for testing
     // TODO: Add proper database authentication
+    const jwt = require('jsonwebtoken');
     const token = jwt.sign(
       { userId: 1, email: email },
       process.env.JWT_SECRET || 'fallback-secret-key',
@@ -22,7 +24,7 @@ export async function POST(request) {
 
     console.log('✅ Login successful for:', email);
     
-    return NextResponse.json({
+    return res.status(200).json({
       token,
       user: {
         id: 1,
@@ -33,6 +35,6 @@ export async function POST(request) {
     });
   } catch (error) {
     console.error('❌ Login error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }

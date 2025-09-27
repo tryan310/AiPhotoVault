@@ -1,8 +1,6 @@
-import { NextResponse } from 'next/server';
-
-export async function GET() {
+export default async function handler(req, res) {
   try {
-    return NextResponse.json({
+    return res.status(200).json({
       status: 'OK',
       timestamp: new Date().toISOString(),
       environment: {
@@ -14,6 +12,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error('❌ Test endpoint error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
