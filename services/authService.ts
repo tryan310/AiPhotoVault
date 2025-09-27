@@ -198,12 +198,23 @@ class AuthService {
     
     // Check if token is expired by trying to decode it
     try {
-      const payload = JSON.parse(atob(this.token.split('.')[1]));
-      const currentTime = Math.floor(Date.now() / 1000);
-      if (payload.exp && payload.exp < currentTime) {
-        // Token is expired, clear it
-        this.clearAuth();
-        return false;
+      // Handle both JWT format and our simplified base64 format
+      let payload;
+      if (this.token.includes('.')) {
+        // JWT format
+        payload = JSON.parse(atob(this.token.split('.')[1]));
+        const currentTime = Math.floor(Date.now() / 1000);
+        if (payload.exp && payload.exp < currentTime) {
+          this.clearAuth();
+          return false;
+        }
+      } else {
+        // Our simplified base64 format
+        payload = JSON.parse(atob(this.token));
+        if (payload.exp && payload.exp < Date.now()) {
+          this.clearAuth();
+          return false;
+        }
       }
       return true;
     } catch (error) {
