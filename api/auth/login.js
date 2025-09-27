@@ -1,9 +1,37 @@
-import express from 'express';
-import { getUserByEmail, comparePassword } from '../../server/database-config.js';
-import { generateToken } from '../../server/auth.js';
+import { Storage } from '@google-cloud/storage';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
-const app = express();
-app.use(express.json());
+// Initialize Google Cloud Storage
+const storage = new Storage({
+  projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
+  keyFilename: process.env.GCS_KEY_B64 ? Buffer.from(process.env.GCS_KEY_B64, 'base64').toString() : undefined,
+});
+
+const bucket = storage.bucket(process.env.GCS_BUCKET_NAME);
+
+// Helper functions
+async function getUserByEmail(email) {
+  try {
+    const file = bucket.file(`users/${email}/user.json`);
+    const [exists] = await file.exists();
+    if (!exists) return null;
+    
+    const [data] = await file.download();
+    return JSON.parse(data.toString());
+  } catch (error) {
+    console.error('Error getting user by email:', error);
+    return null;
+  }
+}
+
+async function comparePassword(password, hash) {
+  return bcrypt.compare(password, hash);
+}
+
+function generateToken(userId) {
+  return jwt.sign({ userId }, process.env.JWT_SECRET || 'fallback-secret', { expiresIn: '7d' });
+}
 
 export default async function handler(req, res) {
   // Set CORS headers
