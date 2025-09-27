@@ -18,16 +18,44 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Token expired' });
     }
     
-    // For now, return mock photos for testing with placeholder images
-    // TODO: Add proper database integration
+    // Generate signed URLs for actual GCS images
+    const { Storage } = require('@google-cloud/storage');
+    
+    // Initialize GCS with environment variables
+    const storage = new Storage({
+      projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
+      credentials: JSON.parse(Buffer.from(process.env.GCS_KEY_B64, 'base64').toString())
+    });
+    
+    const bucket = storage.bucket(process.env.GCS_BUCKET_NAME);
+    
+    // Generate signed URLs for actual images
+    const imagePaths = [
+      'users/1/photos/1758842908094/image_1.png',
+      'users/1/photos/1758842908094/image_2.png'
+    ];
+    
+    const signedUrls = await Promise.all(
+      imagePaths.map(async (path) => {
+        try {
+          const file = bucket.file(path);
+          const [signedUrl] = await file.getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 15 * 60 * 1000, // 15 minutes
+          });
+          return signedUrl;
+        } catch (error) {
+          console.error('Error generating signed URL for', path, ':', error);
+          return null;
+        }
+      })
+    );
+    
     const photos = [
       {
         id: 1,
         theme: 'test',
-        generated_images: [
-          'https://via.placeholder.com/400x400/FF6B6B/FFFFFF?text=Photo+1',
-          'https://via.placeholder.com/400x400/4ECDC4/FFFFFF?text=Photo+2'
-        ],
+        generated_images: signedUrls.filter(url => url !== null),
         credits_used: 2,
         created_at: new Date().toISOString()
       }
