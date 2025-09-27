@@ -18,15 +18,15 @@ export default async function handler(req, res) {
       return res.status(401).json({ error: 'Token expired' });
     }
     
-    // For now, return mock photos for testing
+    // For now, return mock photos for testing with placeholder images
     // TODO: Add proper database integration
     const photos = [
       {
         id: 1,
         theme: 'test',
         generated_images: [
-          'https://storage.googleapis.com/aiphotovault/users/1/photos/1758842908094/image_1.png',
-          'https://storage.googleapis.com/aiphotovault/users/1/photos/1758842908094/image_2.png'
+          'https://via.placeholder.com/400x400/FF6B6B/FFFFFF?text=Photo+1',
+          'https://via.placeholder.com/400x400/4ECDC4/FFFFFF?text=Photo+2'
         ],
         credits_used: 2,
         created_at: new Date().toISOString()
