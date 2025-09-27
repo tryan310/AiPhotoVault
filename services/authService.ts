@@ -20,9 +20,12 @@ class AuthService {
   private user: User | null = null;
 
   constructor() {
+    console.log('🔧 AuthService constructor called');
     // Load token from localStorage on initialization
     this.token = localStorage.getItem('auth_token');
     this.user = this.getStoredUser();
+    console.log('🔧 Constructor loaded token:', this.token);
+    console.log('🔧 Constructor loaded user:', this.user);
   }
 
   private getStoredUser(): User | null {
@@ -206,6 +209,16 @@ class AuthService {
     console.log('🔍 AuthService.isAuthenticated() called');
     console.log('🔍 Token exists:', !!this.token);
     console.log('🔍 Token value:', this.token);
+    
+    // Always check localStorage first in case the instance was recreated
+    const storedToken = localStorage.getItem('auth_token');
+    console.log('🔍 Stored token from localStorage:', storedToken);
+    
+    if (!this.token && storedToken) {
+      console.log('🔧 Loading token from localStorage');
+      this.token = storedToken;
+      this.user = this.getStoredUser();
+    }
     
     if (!this.token) {
       console.log('❌ No token found');
