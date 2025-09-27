@@ -1,6 +1,6 @@
 // Vercel serverless function for login
 import { authenticateUser } from '../../server/database.js';
-import { authService } from '../../services/authService.js';
+import jwt from 'jsonwebtoken';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -31,7 +31,11 @@ export default async function handler(req, res) {
     }
 
     // Generate JWT token
-    const token = authService.generateToken(user);
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '7d' }
+    );
     
     res.json({ 
       success: true, 

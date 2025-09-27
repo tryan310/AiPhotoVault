@@ -1,6 +1,6 @@
 // Vercel serverless function for photos API
 import { getUserPhotos } from '../server/database-gcs.js';
-import { authService } from '../services/authService.js';
+import jwt from 'jsonwebtoken';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -27,16 +27,17 @@ export default async function handler(req, res) {
     const token = authHeader.split(' ')[1];
     
     // Verify token and get user ID
-    const user = authService.verifyToken(token);
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
+    try {
+      const user = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
 
-    // Get photos
-    const photos = await getUserPhotos(user.id);
-    res.json({ photos });
-  } catch (error) {
-    console.error('Error fetching photos:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+      // Get photos
+      const photos = await getUserPhotos(user.id);
+      res.json({ photos });
+    } catch (error) {
+      console.error('Error fetching photos:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
 }

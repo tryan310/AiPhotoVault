@@ -1,6 +1,6 @@
 // Vercel serverless function for image generation
 import { generateImages } from '../server/database-gcs.js';
-import { authService } from '../services/authService.js';
+import jwt from 'jsonwebtoken';
 
 export default async function handler(req, res) {
   // Set CORS headers
@@ -27,23 +27,24 @@ export default async function handler(req, res) {
     const token = authHeader.split(' ')[1];
     
     // Verify token and get user ID
-    const user = authService.verifyToken(token);
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid token' });
+    try {
+      const user = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+      if (!user) {
+        return res.status(401).json({ error: 'Invalid token' });
+      }
+
+      const { prompt, theme, photoCount } = req.body;
+
+      if (!prompt || !theme || !photoCount) {
+        return res.status(400).json({ error: 'Prompt, theme, and photo count are required' });
+      }
+
+      // Generate images
+      const result = await generateImages(user.id, prompt, theme, photoCount);
+      
+      res.json(result);
+    } catch (error) {
+      console.error('Generation error:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
-
-    const { prompt, theme, photoCount } = req.body;
-
-    if (!prompt || !theme || !photoCount) {
-      return res.status(400).json({ error: 'Prompt, theme, and photo count are required' });
-    }
-
-    // Generate images
-    const result = await generateImages(user.id, prompt, theme, photoCount);
-    
-    res.json(result);
-  } catch (error) {
-    console.error('Generation error:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
 }
