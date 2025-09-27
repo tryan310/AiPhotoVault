@@ -34,7 +34,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ onBack, onGenerateMore }) =
         throw new Error('Please log in to view your photos');
       }
       
-      const response = await fetch('/api/photos', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/photos`, {
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
         },
@@ -63,7 +63,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ onBack, onGenerateMore }) =
     }
 
     try {
-      const response = await fetch(`/api/photos/${photoId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/photos/${photoId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${authService.getToken()}`,
