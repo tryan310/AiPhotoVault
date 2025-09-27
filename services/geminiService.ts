@@ -82,7 +82,7 @@ export const generateAiPhotos = async (file: File, prompt: string, photoCount: n
 
     // Call the backend API instead of directly calling Gemini
     try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/generate-photos`, {
+        const response = await fetch('/api/generate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
