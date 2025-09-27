@@ -25,7 +25,6 @@ export default async function handler(req, res) {
       subscription_status: 'active'
     });
   } catch (error) {
-    console.error('❌ Auth me error:', error);
     return res.status(401).json({ error: 'Invalid token' });
   }
 }

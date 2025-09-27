@@ -35,7 +35,6 @@ export default async function handler(req, res) {
     
     return res.status(200).json({ photos });
   } catch (error) {
-    console.error('❌ Photos error:', error);
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({ error: 'Invalid token' });
     }
