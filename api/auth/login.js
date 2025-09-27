@@ -15,12 +15,12 @@ export default async function handler(req, res) {
 
     // For now, accept any email/password combination for testing
     // TODO: Add proper database authentication
-    const jwt = require('jsonwebtoken');
-    const token = jwt.sign(
-      { userId: 1, email: email },
-      process.env.JWT_SECRET || 'fallback-secret-key',
-      { expiresIn: '7d' }
-    );
+    // Simple token generation for testing
+    const token = Buffer.from(JSON.stringify({
+      userId: 1,
+      email: email,
+      exp: Date.now() + (7 * 24 * 60 * 60 * 1000) // 7 days
+    })).toString('base64');
 
     console.log('✅ Login successful for:', email);
     
