@@ -82,7 +82,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onPlanSelect, userEmail }) =>
       const token = localStorage.getItem('auth_token');
       if (!token) return;
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/subscription`, {
+      const response = await fetch('/api/subscription', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -123,7 +123,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onPlanSelect, userEmail }) =>
       const token = localStorage.getItem('auth_token');
       if (!token) return;
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001/api'}/create-portal-session`, {
+      const response = await fetch('/api/create-portal-session', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
